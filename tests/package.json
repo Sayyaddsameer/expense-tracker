@@ -1,0 +1,20 @@
+{
+  "name": "expense-tracker-tests",
+  "version": "1.0.0",
+  "description": "Test suite for the expense tracker receipt parsing engine",
+  "scripts": {
+    "test": "jest --verbose",
+    "test:coverage": "jest --coverage"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "testMatch": ["**/*.test.js"],
+    "transform": {},
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    }
+  },
+  "devDependencies": {
+    "jest": "^29.7.0"
+  }
+}
