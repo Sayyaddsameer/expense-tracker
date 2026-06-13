@@ -1,0 +1,86 @@
+# ---------------------------------------------------------------------------
+# docker-compose.yml
+# Full backend stack for the Expense Tracker application.
+# ---------------------------------------------------------------------------
+# Usage:
+#   cp .env.example .env          # fill in your values
+#   docker-compose up --build -d  # start all services
+#   docker-compose down -v        # stop and remove volumes
+# ---------------------------------------------------------------------------
+
+version: "3.9"
+
+services:
+
+  # ─────────────────────────────────────────────
+  # PostgreSQL database
+  # ─────────────────────────────────────────────
+  db:
+    image: postgres:16-alpine
+    container_name: expense_tracker_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - backend_net
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+
+  # ─────────────────────────────────────────────
+  # FastAPI application
+  # ─────────────────────────────────────────────
+  api:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: expense_tracker_api
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      # Override DATABASE_URL to point to the 'db' service
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@db:5432/${POSTGRES_DB}
+      API_PORT: ${API_PORT:-8000}
+    ports:
+      - "${API_PORT:-8000}:${API_PORT:-8000}"
+    networks:
+      - backend_net
+    depends_on:
+      db:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD-SHELL",
+          "python -c \"import urllib.request, sys; req=urllib.request.urlopen('http://localhost:${API_PORT:-8000}/health', timeout=4); sys.exit(0 if req.status==200 else 1)\""
+        ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+
+# ─────────────────────────────────────────────
+# Named volumes (persist database data across restarts)
+# ─────────────────────────────────────────────
+volumes:
+  postgres_data:
+    driver: local
+
+# ─────────────────────────────────────────────
+# Networks
+# ─────────────────────────────────────────────
+networks:
+  backend_net:
+    driver: bridge
