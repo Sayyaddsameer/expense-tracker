@@ -1,0 +1,49 @@
+{
+  "expo": {
+    "name": "Expense Tracker",
+    "slug": "expense-tracker",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "backgroundColor": "#0f0f1a"
+    },
+    "assetBundlePatterns": ["**/*"],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.expensetracker.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Camera is used to scan receipts for automatic expense entry.",
+        "NSPhotoLibraryUsageDescription": "Photo library is used to select existing receipt images."
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "backgroundColor": "#0f0f1a"
+      },
+      "package": "com.expensetracker.app",
+      "permissions": [
+        "android.permission.CAMERA"
+      ]
+    },
+    "web": {
+      "bundler": "metro",
+      "output": "single",
+      "favicon": "./assets/icon.png"
+    },
+    "plugins": [
+      "expo-router",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Allow Expense Tracker to access your camera to scan receipts."
+        }
+      ]
+    ],
+    "scheme": "expense-tracker",
+    "experiments": {
+      "typedRoutes": true
+    }
+  }
+}
